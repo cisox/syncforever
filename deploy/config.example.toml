@@ -1,0 +1,89 @@
+# Sync Forever box settings. install.sh copies this to /etc/syncforever/config.toml.
+# After editing: sudo systemctl restart syncforever
+# Paths are on the box (the Pi); cart paths start at the SD card's root.
+
+# `sudo sfe setup` asks for the folders below and writes them here; `sudo sfe doctor` checks them.
+# One box serves every cart plugged into it (through a USB hub), all at once. Each cart says
+# what it is, so it gets its console's settings below: [nes] for an EverDrive-N8 PRO,
+# [genesis] for a Mega EverDrive PRO, [n64] for an EverDrive-64 X7, [snes] for an FXPAK PRO.
+# A setting left out of a console's section falls back to [library], [saves] and [cart].
+
+[nes]
+# Folder of ROMs that sync copies to the cart, on a disk attached to the box or a mounted network share.
+library = "/mnt/games/roms/nes"
+# Where this console's save backups go: one folder per game, one numbered file per change,
+# never overwritten. "" turns save backup off for this console.
+saves = "/mnt/games/saves/nes"
+# Also available per console: dest, sync_mode (explained under [cart]).
+
+[genesis]
+# Mega Drive/Genesis, 32X, Sega CD, Master System, Game Gear and SG-1000 ROMs, plus .nes and .ips.
+library = "/mnt/games/roms/genesis"
+saves = "/mnt/games/saves/genesis"
+# MSU-MD games (off by default): true syncs each one, unzipped in a folder of its own (Game.md,
+# Game.cue and the .bin its cue names), with its audio; see msu under [snes].
+msu = false
+# Files already on the card that the box has no record of, with the same name and size as the
+# library's (a card you copied yourself). "auto": check each once, unless that would take over 10
+# minutes and a spot check of about 2 minutes finds every file it samples the same; the rest are
+# then taken as the library's. "check": always check each. "trust": never check. Any console.
+# first_look = "auto"
+# Save states (the 00.SAV ... 09.SAV slots) go with the saves unless you name a folder of their
+# own, laid out the same; "" doesn't back them up.
+# states = "/mnt/games/savestates/genesis"
+
+[n64]
+# EverDrive-64 X7: N64 ROMs (.z64 .v64 .n64), .ips/.aps patches, and the ROMs of every emulator in
+# the card's ED64/emu folder (gb.v64 runs .gb files, and so on).
+library = "/mnt/games/roms/n64"
+saves = "/mnt/games/saves/n64"
+
+[snes]
+# FXPAK PRO: .sfc .smc .swc .fig .bs ROMs. Saves are its battery saves, save states and cheats
+# (sd2snes/saves, states, cheats). Sync never touches the card's sd2snes folder.
+library = "/mnt/games/roms/snes"
+saves = "/mnt/games/saves/snes"
+# MSU-1 games (off by default): true syncs each ROM's .msu and -1.pcm, -2.pcm, ... (same name,
+# same folder) with it, and mirror/strict remove them with it. Audio packs are big: the cart
+# takes ~250 KiB/s, so a 500 MB pack is ~35 minutes. They go before their ROM, aren't read back,
+# and copies already on the card are kept as they are. false: MSU games are left out of the
+# sync, and those already on the card left alone (copy big sets by card once; true then keeps
+# them up to date). The box never unzips: keep each game unzipped in the library.
+msu = false
+# Save states (sd2snes/states/*.state): as under [genesis].
+# states = "/mnt/games/savestates/snes"
+
+[library]
+# The default library, for a console without its own. Empty: that console doesn't sync.
+path = ""
+
+[saves]
+# The default save folder, for a console without its own. "" = no save backup.
+path = ""
+
+[cart]
+# Where library ROMs go on the cart. Sync never touches a cart's system folder (EDN8, MEGA,
+# ED64, sd2snes).
+dest = "/"
+# Where the box installs the Sync Forever app, and keeps it up to date. "" = never.
+# The cart's own extension replaces .nes (a Mega EverDrive gets "/Sync Forever.md", an
+# FXPAK PRO "/Sync Forever.sfc").
+app_path = "/Sync Forever.nes"
+# Default sync mode: "add" (only new ROMs), "update" (also replace changed ones),
+# "mirror" (also remove ROMs sync added that left the library), "strict" (remove every ROM
+# not in the library). The app can switch mode before each sync.
+sync_mode = "add"
+# Set the cart's clock from the box when a cart connects.
+set_clock = true
+
+[box]
+# Where the box keeps its sync records (one file per cart).
+state = "/var/lib/syncforever"
+# Serial device of one cart. Empty: serve every EverDrive found by its USB ID.
+port = ""
+# Check krikzz.com once a day for new cart firmware. A newer .efu is copied to the card's
+# root while the Sync Forever app is open, and the app shows "Firmware: v26.0925" in red;
+# install it from the cart's menu (Krikzz's efu-install.txt). Green: the cart runs the newest.
+# The X7 and the FXPAK PRO only get the line (their updates are a whole folder, copied from a
+# computer): green when the cart runs the newest OS/firmware, red when there's newer.
+firmware = true

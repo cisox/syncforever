@@ -1,0 +1,8 @@
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.venv/
+__pycache__/
+dist/
+results/*.local.jsonl
+INTERNAL.md

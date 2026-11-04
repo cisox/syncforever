@@ -1,0 +1,20 @@
+[Unit]
+Description=Sync Forever box (EverDrive save backup and ROM sync)
+Documentation=file:///opt/syncforever/README.md
+# The library and save folders are often mounts.
+Wants=network-online.target
+After=network-online.target remote-fs.target
+
+[Service]
+User=syncforever
+Group=syncforever
+# The carts' USB serial ports (/dev/ttyACM* for the PRO carts, /dev/ttyUSB* for the X7's FTDI
+# chip) belong to dialout.
+SupplementaryGroups=dialout
+ExecStart=/opt/syncforever/venv/bin/sfe serve --config /etc/syncforever/config.toml
+Environment=PYTHONUNBUFFERED=1
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
